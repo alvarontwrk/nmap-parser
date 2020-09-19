@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.70 scan initiated Sat Sep 19 12:30:24 2020 as: nmap -p- -T5 -&#45;min-rate 10 -oX local.xml localhost -->
+<nmaprun scanner="nmap" args="nmap -p- -T5 -&#45;min-rate 10 -oX local.xml localhost" start="1600511424" startstr="Sat Sep 19 12:30:24 2020" version="7.70" xmloutputversion="1.04">
+<scaninfo type="connect" protocol="tcp" numservices="65535" services="1-65535"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1600511424" endtime="1600511425"><status state="up" reason="conn-refused" reason_ttl="0"/>
+<address addr="127.0.0.1" addrtype="ipv4"/>
+<hostnames>
+<hostname name="localhost" type="user"/>
+<hostname name="localhost" type="PTR"/>
+</hostnames>
+<ports><extraports state="closed" count="65526">
+<extrareasons reason="conn-refused" count="65526"/>
+</extraports>
+<port protocol="tcp" portid="25"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="smtp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="111"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="rpcbind" method="table" conf="3"/></port>
+<port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="netbios-ssn" method="table" conf="3"/></port>
+<port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="microsoft-ds" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2049"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="nfs" method="table" conf="3"/></port>
+<port protocol="tcp" portid="35111"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="40495"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="49577"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="57135"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+</ports>
+<times srtt="83" rttvar="60" to="50000"/>
+</host>
+<runstats><finished time="1600511425" timestr="Sat Sep 19 12:30:25 2020" elapsed="1.19" summary="Nmap done at Sat Sep 19 12:30:25 2020; 1 IP address (1 host up) scanned in 1.19 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
