@@ -18,9 +18,20 @@ type NmapRun struct {
 }
 
 type Host struct {
-	XMLName xml.Name `xml:"host"`
-	Ports   Ports    `xml:"ports"`
-	Address Address  `xml:"address"`
+	XMLName   xml.Name   `xml:"host"`
+	Ports     Ports      `xml:"ports"`
+	Address   Address    `xml:"address"`
+	Hostnames Hostanames `xml:"hostnames"`
+}
+
+type Hostanames struct {
+	XMLName   xml.Name   `xml:"hostnames"`
+	Hostnames []Hostname `xml:"hostname"`
+}
+
+type Hostname struct {
+	XMLName xml.Name `xml:"hostname"`
+	Name    string   `xml:"name,attr"`
 }
 
 type Address struct {
@@ -49,10 +60,6 @@ var nmaprun NmapRun
 
 func getPorts(bytes []byte) []int {
 	nmaprun = NmapRun{}
-	/*
-		buf := new(bytes.Buffer)
-		burf.ReadFrom(r)
-	*/
 	xml.Unmarshal(bytes, &nmaprun)
 	var openPorts []int
 	for _, openPort := range nmaprun.Hosts[0].Ports.OpenPorts {
@@ -75,19 +82,38 @@ func portsToNmap(ports []int) string {
 
 func getAddress(bytes []byte) string {
 	nmaprun = NmapRun{}
-	/*
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(r)
-		print(len(buf.Bytes()))
-	*/
 	xml.Unmarshal(bytes, &nmaprun)
 	return nmaprun.Hosts[0].Address.Addr
+}
+
+func getHostnames(bytes []byte) []string {
+	nmaprun = NmapRun{}
+	xml.Unmarshal(bytes, &nmaprun)
+	var hostnames []string
+	for _, hostname := range nmaprun.Hosts[0].Hostnames.Hostnames {
+		hostnames = append(hostnames, hostname.Name)
+	}
+	return removeDuplicates(hostnames)
 }
 
 func readerToBytes(r io.Reader) []byte {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r)
 	return buf.Bytes()
+}
+
+func removeDuplicates(elements []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+
+	for v := range elements {
+		if encountered[elements[v]] == true {
+		} else {
+			encountered[elements[v]] = true
+			result = append(result, elements[v])
+		}
+	}
+	return result
 }
 
 func init() {
@@ -98,8 +124,9 @@ func init() {
 		h += "  nmap-parser [OPTIONS] [FILE|URL|-]\n\n"
 
 		h += "Options:\n"
-		h += "  -a, --address  Get address\n"
-		h += "  -p, --ports    List open ports\n"
+		h += "  -n, --hostnames  Get hostnames\n"
+		h += "  -a, --address    Get address\n"
+		h += "  -p, --ports      List open ports\n"
 		h += "\n"
 
 		fmt.Fprintf(os.Stderr, h)
@@ -108,14 +135,17 @@ func init() {
 
 func main() {
 	var (
-		portFlag    bool
-		addressFlag bool
+		portFlag      bool
+		addressFlag   bool
+		hostnamesFlag bool
 	)
 
 	flag.BoolVar(&addressFlag, "address", false, "")
 	flag.BoolVar(&addressFlag, "a", false, "")
 	flag.BoolVar(&portFlag, "ports", false, "")
 	flag.BoolVar(&portFlag, "p", false, "")
+	flag.BoolVar(&hostnamesFlag, "hostanames", false, "")
+	flag.BoolVar(&hostnamesFlag, "n", false, "")
 
 	flag.Parse()
 
@@ -143,11 +173,17 @@ func main() {
 		address := getAddress(fileBytes)
 		fmt.Println(address)
 		os.Exit(0)
+	} else if hostnamesFlag {
+		hostnames := strings.Join(getHostnames(fileBytes), ", ")
+		fmt.Println(hostnames)
+		os.Exit(0)
 	} else {
+		hostnames := strings.Join(getHostnames(fileBytes), ", ")
 		address := getAddress(fileBytes)
 		ports := getPorts(fileBytes)
 		portsAsString := intSliceToString(ports, ", ")
-		fmt.Fprintf(os.Stdout, "[+] Host:\t%s\n", address)
-		fmt.Fprintf(os.Stdout, "[+] Ports:\t%s\n", portsAsString)
+		fmt.Fprintf(os.Stdout, "[+] Hostname(s):\t%s\n", hostnames)
+		fmt.Fprintf(os.Stdout, "[+] Address:\t\t%s\n", address)
+		fmt.Fprintf(os.Stdout, "[+] Ports:\t\t%s\n", portsAsString)
 	}
 }
